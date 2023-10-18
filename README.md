@@ -46,6 +46,7 @@ df.profile_graph(speaker='...')
 ```
 
 [Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
+
 [Colab demo for analyzing customer reviews](https://colab.research.google.com/drive/1XNWUqJbDNSLJz5kRyeQZaJyLaS_U2BG-?usp=sharing)
 
 ## Contributing and Support
