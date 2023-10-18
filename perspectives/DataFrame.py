@@ -24,19 +24,19 @@ class DataFrame(pd.DataFrame):
           self.emotion_embs = []
           self.object_embs = []
           self.reason_embs = []
-    
+
     def load_model(self):
         model_id = "helliun/bart-perspectives"
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id).to(self.device)
-    
+
     def load_embmodel(self):
         model_id = "sentence-transformers/all-mpnet-base-v1"
         self.embmodel = SentenceTransformer(model_id).to(self.device)
-    
+
     def silly(self):
        return self.head()
-    
+
     def get_perspective(self,text):
         prompt = f"Describe the perspective of this text: {text}"
         input_ids = self.tokenizer(prompt, return_tensors='pt').input_ids.to(self.device)
@@ -52,7 +52,7 @@ class DataFrame(pd.DataFrame):
         reason = reason[:reason.find("Speaker:")-1]
         return {"speaker": speaker, "emotion": emotion, "object": obj, "reason": reason}
         return reply
-    
+
     def model_perspectives(self, texts, batch_size=8):
         batches = [texts[i:i + batch_size] for i in range(0, len(texts), batch_size)]
         all_output = []
@@ -128,7 +128,7 @@ class DataFrame(pd.DataFrame):
           query_emb = self.embmodel.encode(query)
           cos_scores = list(util.cos_sim(query_emb, self.object_embs)[0])
           search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
-        
+
         if reason != None:
           if self.reason_embs == []:
             reason_embs = self.embmodel.encode(self["reason"])
@@ -137,17 +137,22 @@ class DataFrame(pd.DataFrame):
           query_emb = self.embmodel.encode(query)
           cos_scores = list(util.cos_sim(query_emb, self.reason_embs)[0])
           search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
-        
+
         if search_df["sim_score"].tolist() != [0.0]*len(self):
           search_df.sort_values(by="sim_score", ascending=False, inplace=True)
 
         search_df.drop(columns=["sim_score"], inplace=True)
 
-        return DataFrame(texts=search_df["text"].tolist(),data={"texts":search_df["text"].tolist(),"speaker":search_df["speaker"].tolist(),
+        return_df =  DataFrame(texts=search_df["text"].tolist(),data={"texts":search_df["text"].tolist(),"speaker":search_df["speaker"].tolist(),
                                                          "emotion":search_df["emotion"].tolist(),
                                                          "object":search_df["object"].tolist(),
                                                          "reason":search_df["reason"].tolist()
                                                          }, embmodel=self.embmodel, model=self.model)
+
+        return_df.embmodel = self.embmodel
+        return_df.model = self.model
+        return return_df
+
     def view_pydot(self,pdot):
       plt = Image(pdot.create_png())
       display(plt)
@@ -185,7 +190,7 @@ class DataFrame(pd.DataFrame):
                 happy_sim = util.cos_sim([happy_embedding], [emotion_embedding])[0][0]
                 angry_sim = util.cos_sim([angry_embedding], [emotion_embedding])[0][0]
                 similarity = np.clip(happy_sim - 0.5*angry_sim, 0,1)
-                
+
                 # Convert similarity to an integer between 0 and 255
                 color_value = int(255 * (1 - similarity))
 
