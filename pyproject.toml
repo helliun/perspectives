@@ -1,7 +1,7 @@
 [project]
 
 name = "perspectives"
-version = "0.1.2"
+version = "1.0.0"
 authors = [
   { name="Henry Leonardi", email="leonardi.henry@gmail.com" },
 ]
@@ -18,10 +18,10 @@ classifiers = [
 
 
 [options]
-install_requires = ["setuptools", "transformers", "sentence-transformers"]
+install_requires = ["setuptools", "transformers", "sentence-transformers", "pydot", "graphviz"]
 
 [build-system]
-requires = ["setuptools", "transformers", "sentence-transformers"]
+requires = ["setuptools", "transformers", "sentence-transformers", "pydot", "graphviz"]
 build-backend = 'setuptools.build_meta'
 
 [project.urls]
