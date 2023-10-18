@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="perspectives",
-    version="1.0.0",
+    version="1.0.1",
     author="Henry Leonardi",
     author_email="leonardi.henry@gmail.com",
     description="Extracting directed emotions at scale with LMs",

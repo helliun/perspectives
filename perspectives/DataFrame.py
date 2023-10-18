@@ -9,15 +9,15 @@ import pydot
 from IPython.display import Image, display
 
 class DataFrame(pd.DataFrame):
-    def __init__(self, data=None, index=None, columns=None, dtype=None, copy=False, texts=None):
+    def __init__(self, data=None, index=None, columns=None, dtype=None, copy=False, texts=None, embmodel=None, model=None):
         super().__init__(data=data, index=index, columns=columns, dtype=dtype, copy=copy)
         with warnings.catch_warnings():
           warnings.simplefilter("ignore")
           self.texts = texts
           self["texts"] = self.texts
           self.tokenizer = None
-          self.model = None
-          self.embmodel = None
+          self.model = model
+          self.embmodel = embmodel
           self.perspectives_loaded = False
           self.device = "cuda" if torch.cuda.is_available() else "cpu"
           self.speaker_embs = []
@@ -147,7 +147,7 @@ class DataFrame(pd.DataFrame):
                                                          "emotion":search_df["emotion"].tolist(),
                                                          "object":search_df["object"].tolist(),
                                                          "reason":search_df["reason"].tolist()
-                                                         },)
+                                                         }, embmodel=self.embmodel, model=self.model)
     def view_pydot(self,pdot):
       plt = Image(pdot.create_png())
       display(plt)
