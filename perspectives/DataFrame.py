@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, TrainingArguments, Trainer
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 from tqdm import tqdm
 import torch
 import warnings
+import pydot
+from IPython.display import Image, display
 
 class DataFrame(pd.DataFrame):
     def __init__(self, data=None, index=None, columns=None, dtype=None, copy=False, texts=None):
@@ -146,4 +148,63 @@ class DataFrame(pd.DataFrame):
                                                          "object":search_df["object"].tolist(),
                                                          "reason":search_df["reason"].tolist()
                                                          },)
+    def view_pydot(self,pdot):
+      plt = Image(pdot.create_png())
+      display(plt)
 
+    def profile_graph(self, speaker, emotion_limit=-1, obj_limit=-1):
+        dictionary = {}
+
+        if len(self[self["speaker"] == speaker]) != 0:
+          for row in self[self["speaker"] == speaker].iterrows():
+            if row[1]["emotion"] in dictionary:
+              dictionary[row[1]["emotion"]].append(row[1]["object"])
+            else:
+              dictionary[row[1]["emotion"]] = [row[1]["object"]]
+        else:
+          print("Speaker not found")
+          return
+
+        # Create an empty graph
+        graph = pydot.Dot(graph_type='graph')
+
+        # Start with the Speaker node
+        speaker_node = pydot.Node(speaker, style="filled", fillcolor="blue")
+        graph.add_node(speaker_node)
+
+        # Get the embedding for the word "happy"
+        happy_embedding = self.embmodel.encode([f'{speaker} is happy'])[0]
+        angry_embedding = self.embmodel.encode([f'{speaker} is angry'])[0]
+
+
+        # Add Emotion nodes
+        for emotion in list(dictionary.keys())[:emotion_limit]:
+            if emotion != 'speaker':
+                # Calculate the cosine similarity to the word "happy"
+                emotion_embedding = self.embmodel.encode([f'{speaker} is {emotion}'])[0]
+                happy_sim = util.cos_sim([happy_embedding], [emotion_embedding])[0][0]
+                angry_sim = util.cos_sim([angry_embedding], [emotion_embedding])[0][0]
+                similarity = np.clip(happy_sim - 0.5*angry_sim, 0,1)
+                
+                # Convert similarity to an integer between 0 and 255
+                color_value = int(255 * (1 - similarity))
+
+                # Convert the color value to hexadecimal
+                color_hex = format(color_value, '02x')
+
+                # Define color based on similarity (green for high, red for low)
+                color = f"#{color_hex}ff00" if similarity >= 0.4 else f"#ff{color_hex}00"
+
+                emotion_node = pydot.Node(emotion, style="filled", fillcolor=color)
+                graph.add_node(emotion_node)
+                graph.add_edge(pydot.Edge(speaker_node, emotion_node))
+
+                # Add Object nodes
+                for object_ in dictionary[emotion][:obj_limit]:
+                    object_node = pydot.Node(object_, style="filled", fillcolor="yellow")
+                    graph.add_node(object_node)
+                    graph.add_edge(pydot.Edge(emotion_node, object_node))
+
+        # Save the graph to a file
+        graph.write_png('graph.png')
+        self.view_pydot(graph)
