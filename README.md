@@ -45,7 +45,8 @@ df.search(speaker='...', emotion='...')
 df.profile_graph(speaker='...')
 ```
 
-[Full colab demo](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
+[Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
+[Colab demo for analyzing customer reviews](https://colab.research.google.com/drive/1XNWUqJbDNSLJz5kRyeQZaJyLaS_U2BG-?usp=sharing)
 
 ## Contributing and Support
 
