@@ -5,6 +5,8 @@
 The Perspectives library offers an easy way to extract directed emotions at scale with its [cutting edge emotion extraction model](https://huggingface.co/helliun/bart-perspectives). It is built on top of the powerful pandas DataFrame functionality. The library introduces several novel methods for text analytics, perfect for dealing with customer feedback, analyzing semantic trends, or profiling entities within a text.
 ![image](https://github.com/helliun/perspectives/blob/main/burr_perspective.png)
 *Graph generated from extracted perspectives*
+
+
 ![image](https://github.com/helliun/perspectives/blob/main/burr_search_example.png)
 *Search dashboard built on top of pandas*
 
