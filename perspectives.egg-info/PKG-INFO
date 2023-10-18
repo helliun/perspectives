@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: perspectives
+Version: 0.1.2
+Summary: Extracting directed emotions at scale with LMs
+Home-page: https://github.com/helliun/perspectives
+Author: Henry Leonardi
+Author-email: Henry Leonardi <leonardi.henry@gmail.com>
+Project-URL: Homepage, https://github.com/helliun/perspectives
+Project-URL: Bug Tracker, https://github.com/helliun/perspectives/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: hatchling
+Requires-Dist: transformers
+Requires-Dist: sentence-transformers
+Requires-Dist: tqdm
+
+# Perspectives

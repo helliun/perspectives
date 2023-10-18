@@ -1,0 +1,4 @@
+hatchling
+transformers
+sentence-transformers
+tqdm

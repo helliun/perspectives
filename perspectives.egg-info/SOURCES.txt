@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+perspectives/DataFrame.py
+perspectives/__init__.py
+perspectives.egg-info/PKG-INFO
+perspectives.egg-info/SOURCES.txt
+perspectives.egg-info/dependency_links.txt
+perspectives.egg-info/requires.txt
+perspectives.egg-info/top_level.txt
