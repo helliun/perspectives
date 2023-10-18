@@ -2,10 +2,13 @@
 
 ## Overview
 
-The Perspectives library offers an easy way to extract directed emotions at scale with its [cutting edge emotion extraction model](https://huggingface.co/helliun/bart-perspectives). It is built on top of the powerful pandas DataFrame functionality. The library introduces several novel methods for text analytics, perfect for dealing with customer feedback, analyzing semantic trends, or profiling entities within a text.
+The Perspectives library offers an easy way to extract directed emotions at scale with its [cutting-edge emotion extraction model](https://huggingface.co/helliun/bart-perspectives). It is built on top of the powerful pandas DataFrame functionality. The library introduces several novel methods for text analytics, perfect for dealing with customer feedback, analyzing semantic trends, or profiling entities within a text.
 ![image](https://github.com/helliun/perspectives/blob/main/burr_perspective.png)
-![image](https://github.com/helliun/perspectives/blob/main/burr_search_example.png)
+*Graph generated from extracted perspectives*
 
+
+![image](https://github.com/helliun/perspectives/blob/main/burr_search_example.png)
+*Search dashboard built on top of pandas*
 
 ## Main Features
 
@@ -42,7 +45,9 @@ df.search(speaker='...', emotion='...')
 df.profile_graph(speaker='...')
 ```
 
-[Full colab demo](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
+[Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
+
+[Colab demo for analyzing customer reviews](https://colab.research.google.com/drive/1XNWUqJbDNSLJz5kRyeQZaJyLaS_U2BG-?usp=sharing)
 
 ## Contributing and Support
 
