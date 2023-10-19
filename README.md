@@ -42,6 +42,10 @@ df.search(speaker='...', emotion='...')
 df.graph(speaker='...')
 ```
 
+[Video demo](https://github.com/helliun/perspectives/assets/65739931/a9270e80-1b11-43d6-8330-e7589ef06438)
+
+
+
 [Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
 
 [Colab demo for analyzing customer reviews](https://colab.research.google.com/drive/1XNWUqJbDNSLJz5kRyeQZaJyLaS_U2BG-?usp=sharing)
