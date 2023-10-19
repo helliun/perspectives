@@ -114,7 +114,7 @@ class DataFrame(pd.DataFrame):
         plt = Image(pdot.create_png())
         display(plt)
 
-    def profile_graph(self, speaker="Speaker ", emotion_limit=5, obj_limit=3):
+    def graph(self, speaker="Speaker", emotion_limit=5, obj_limit=3):
         if self._embmodel is None:
             self.load_embmodel()
 
@@ -170,6 +170,4 @@ class DataFrame(pd.DataFrame):
                     graph.add_node(object_node)
                     graph.add_edge(pydot.Edge(emotion_node, object_node))
 
-        # Save the graph to a file
-        graph.write_png('graph.png')
         self.view_pydot(graph)

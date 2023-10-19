@@ -42,7 +42,7 @@ df.get_perspectives()
 df.search(speaker='...', emotion='...')
 
 # Profile
-df.profile_graph(speaker='...')
+df.graph(speaker='...')
 ```
 
 [Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)

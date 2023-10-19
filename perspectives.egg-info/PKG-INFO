@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: perspectives
-Version: 1.0.6
+Version: 1.0.7
 Summary: Extracting directed emotions at scale with LMs
 Home-page: https://github.com/helliun/perspectives
 Author: Henry Leonardi
@@ -64,7 +64,7 @@ df.get_perspectives()
 df.search(speaker='...', emotion='...')
 
 # Profile
-df.profile_graph(speaker='...')
+df.graph(speaker='...')
 ```
 
 [Colab demo for profiling](https://colab.research.google.com/drive/1asovKRUHmsZfZo8Iz18q_dfAJXzahhmB?usp=sharing)
