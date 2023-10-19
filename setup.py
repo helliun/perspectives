@@ -5,15 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="perspectives",
-    version="1.0.3",
+    version="1.0.5",
     author="Henry Leonardi",
     author_email="leonardi.henry@gmail.com",
     description="Extracting directed emotions at scale with LMs",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/helliun/perspectives",
-    packages=["perspectives"],#setuptools.find_packages(),
-    #py_modules = ["src/causal_chains"],
+    packages=["perspectives"],
     install_requires = ["hatchling","transformers","sentence-transformers","tqdm", "pydot", "graphviz"]
 ,
     classifiers=(
