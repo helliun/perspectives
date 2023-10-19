@@ -14,7 +14,7 @@ The Perspectives library offers an easy way to extract perspectives (emotion eve
 
 1. **Easily extract perspectives from text**: The `get_perspectives()` function allows you to extract the speaker's identity, emotions, and the object of these emotions, giving you useful insights about the emotions in your text.
 
-2. **Powerful search capabilities**: You can search the dataset based on the speaker, emotion, object, and reason. The search method leverages the sentence transformer models for semantic search functionality, providing you with outputs that are spot-on.
+2. **Powerful search capabilities**: You can perform semantic search on the dataset based on any column or combination of columns in the dataset (including columns generated from perspective extraction) . The search method leverages the sentence transformer models for semantic search functionality, providing you with outputs that are spot-on.
 
 3. **Improved machine learning models**: The library efficiently interfaces with PyTorch BART model for Seq2Seq learning and the mpnet-base model for sentence-transformations, which provides powerful text representation for ML models.
 
@@ -32,13 +32,10 @@ from perspectives import DataFrame
 # Load DataFrame
 df = DataFrame(texts = [list of sentences]) 
 
-# Load model
-df.load_model() 
-
 # Get perspectives
 df.get_perspectives()
 
-# Search
+# Semantic search on any combination of columns
 df.search(speaker='...', emotion='...')
 
 # Profile
