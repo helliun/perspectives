@@ -114,7 +114,7 @@ class DataFrame(pd.DataFrame):
         plt = Image(pdot.create_png())
         display(plt)
 
-    def profile_graph(self, speaker="Speaker ", emotion_limit=-1, obj_limit=-1):
+    def profile_graph(self, speaker="Speaker ", emotion_limit=5, obj_limit=3):
         if self._embmodel is None:
             self.load_embmodel()
 
