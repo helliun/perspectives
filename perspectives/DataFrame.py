@@ -14,7 +14,7 @@ class DataFrame(pd.DataFrame):
         with warnings.catch_warnings():
           warnings.simplefilter("ignore")
           self.texts = texts
-          self["texts"] = self.texts
+          self["text"] = self.texts
           self.tokenizer = None
           self.model = model
           self.embmodel = embmodel
@@ -94,63 +94,36 @@ class DataFrame(pd.DataFrame):
           self.drop(columns=["perspectives"], inplace=True)
           self.perspectives_loaded = True
 
-    def search(self, speaker=None, emotion=None, obj=None, reason=None):
-        if self.embmodel == None:
-          self.load_embmodel()
+    def search(self, *args, **kwargs):
+        if self.embmodel is None:
+            self.load_embmodel()
 
         search_df = self.copy()
         search_df["sim_score"] = [0.0]*len(search_df)
         search_df["text"] = self.texts
 
-        if speaker != None:
-          if self.speaker_embs == []:
-            speaker_embs = self.embmodel.encode(self["speaker"])
-            self.speaker_embs = speaker_embs
-          query = speaker
-          query_emb = self.embmodel.encode(query)
-          cos_scores = list(util.cos_sim(query_emb, self.speaker_embs)[0])
-          search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
+        for key, value in kwargs.items():
+            if key == "obj":
+              key = "object"
+            if value is not None:
+                if not isinstance(getattr(self, key + "_embs", None),np.ndarray):
+                  if getattr(self, key + "_embs", None) in [None,[]]:
+                      setattr(self, key + "_embs", self.embmodel.encode(self[key]))
 
-        if emotion != None:
-          if self.emotion_embs == []:
-            emotion_embs = self.embmodel.encode(self["emotion"])
-            self.emotion_embs = emotion_embs
-          query = emotion
-          query_emb = self.embmodel.encode(query)
-          cos_scores = list(util.cos_sim(query_emb, self.emotion_embs)[0])
-          search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
+                query_emb = self.embmodel.encode(value)
+                cos_scores = list(util.cos_sim(query_emb, getattr(self, key + "_embs"))[0])
+                search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"], cos_scores)]
 
-        if obj != None:
-          if self.object_embs == []:
-            object_embs = self.embmodel.encode(self["object"])
-            self.object_embs = object_embs
-          query = obj
-          query_emb = self.embmodel.encode(query)
-          cos_scores = list(util.cos_sim(query_emb, self.object_embs)[0])
-          search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
-
-        if reason != None:
-          if self.reason_embs == []:
-            reason_embs = self.embmodel.encode(self["reason"])
-            self.reason_embs = reason_embs
-          query = reason
-          query_emb = self.embmodel.encode(query)
-          cos_scores = list(util.cos_sim(query_emb, self.reason_embs)[0])
-          search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"],cos_scores)]
-
-        if search_df["sim_score"].tolist() != [0.0]*len(self):
-          search_df.sort_values(by="sim_score", ascending=False, inplace=True)
-
+        if any(search_df["sim_score"]):
+            search_df.sort_values(by="sim_score", ascending=False, inplace=True)
+        
         search_df.drop(columns=["sim_score"], inplace=True)
 
-        return_df =  DataFrame(texts=search_df["text"].tolist(),data={"texts":search_df["text"].tolist(),"speaker":search_df["speaker"].tolist(),
-                                                         "emotion":search_df["emotion"].tolist(),
-                                                         "object":search_df["object"].tolist(),
-                                                         "reason":search_df["reason"].tolist()
-                                                         }, embmodel=self.embmodel, model=self.model)
+        return_df =  DataFrame(texts=search_df["text"].tolist(),
+                               data={col: search_df[col].tolist() for col in search_df.columns},
+                               embmodel=self.embmodel,
+                               model=self.model)
 
-        return_df.embmodel = self.embmodel
-        return_df.model = self.model
         return return_df
 
     def view_pydot(self,pdot):
