@@ -1,4 +1,4 @@
-# Perspectives: Pandas-based library for Perspective Extraction and Semantic Search
+# Perspectives: Pandas-based library for Emotion Graphing and Semantic Search
 
 ## Overview
 
