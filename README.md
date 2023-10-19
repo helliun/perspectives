@@ -50,6 +50,8 @@ df.graph(speaker='...')
 
 Contributions are welcome! Please raise a GitHub issue for any problems you encounter.
 
+[Buy me a coffee!](https://www.buymeacoffee.com/helliun)
+
 ## Licence
 
 The library is open source, free to use under the MIT license. 
