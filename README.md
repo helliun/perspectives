@@ -1,4 +1,4 @@
-# Perspectives: Perspective Extraction and Semantic Search in Pandas
+# Perspectives: Pandas-based library for Perspective Extraction and Semantic Search
 
 ## Overview
 
