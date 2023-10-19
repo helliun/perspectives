@@ -46,6 +46,10 @@ df.graph(speaker='...')
 
 [Colab demo for analyzing customer reviews](https://colab.research.google.com/drive/1XNWUqJbDNSLJz5kRyeQZaJyLaS_U2BG-?usp=sharing)
 
+## About me
+
+I'm a recent grad of Ohio State University where I did an undergraduate thesis on Synthetic Data Augmentation using LLMs. I've worked as an NLP consultant for a couple awesome startups, and now I'm looking for a role with an inspiring company who is as interested in the untapped potential of LMs as I am! [Here's my LinkedIn.](https://www.linkedin.com/in/henry-leonardi-a63851165/)
+
 ## Contributing and Support
 
 Contributions are welcome! Please raise a GitHub issue for any problems you encounter.
