@@ -1,4 +1,4 @@
-# Perspectives: Pandas-based library for emotion graphing and semantic search
+# Perspectives: LM emotion graphing and semantic search built on Pandas
 
 ## Overview
 
