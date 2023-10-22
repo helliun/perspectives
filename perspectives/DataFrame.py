@@ -46,19 +46,6 @@ class DataFrame(pd.DataFrame):
             data.perspectives_loaded = self.perspectives_loaded
         return data
 
-    @classmethod
-    def load_model(cls):
-        if cls._model is None:
-            model_id = "helliun/bart-perspectives"
-            cls._tokenizer = AutoTokenizer.from_pretrained(model_id)
-            cls._model = AutoModelForSeq2SeqLM.from_pretrained(model_id).to(cls.device)
-
-    @classmethod
-    def load_embmodel(cls):
-        if cls._embmodel is None:
-            model_id = "sentence-transformers/all-mpnet-base-v1"
-            cls._embmodel = SentenceTransformer(model_id).to(cls.device)
-
     def model_perspectives(self, texts, batch_size=8):
         batches = [texts[i:i + batch_size] for i in range(0, len(texts), batch_size)]
         all_output = []
@@ -88,8 +75,13 @@ class DataFrame(pd.DataFrame):
         return all_output
 
     def get_perspectives(self, batch_size=8):
-        if self._model == None:
-          self.load_model()
+        while self._model is None:
+            model_id = "helliun/bart-perspectives"
+            self.__class__._model = AutoModelForSeq2SeqLM.from_pretrained(model_id).to(self.device)
+            self.__class__._tokenizer = AutoTokenizer.from_pretrained(model_id)
+            self._model = self.__class__._model
+            self._tokenizer = self.__class__._tokenizer
+
         if not self.perspectives_loaded:
           perspectives = self.model_perspectives(self["text"].tolist(), batch_size=batch_size)
           self["perspectives"] = perspectives
@@ -101,10 +93,10 @@ class DataFrame(pd.DataFrame):
           self.perspectives_loaded = True
 
     def search(self, *args, **kwargs):
-        while self._embmodel is None:
-            self.load_embmodel()
+        if self._embmodel is None:
             model_id = "sentence-transformers/all-mpnet-base-v1"
-            self._embmodel = SentenceTransformer(model_id).to(self.device)
+            self.__class__._embmodel = SentenceTransformer(model_id).to(self.device)
+            self._embmodel = self.__class__._embmodel
 
         search_df = self.copy()
         search_df["sim_score"] = [0.0]*len(search_df)
@@ -134,7 +126,9 @@ class DataFrame(pd.DataFrame):
     
     def relevant(self):
         if self._embmodel is None:
-            self.load_embmodel()
+            model_id = "sentence-transformers/all-mpnet-base-v1"
+            self.__class__._embmodel = SentenceTransformer(model_id).to(self.device)
+            self._embmodel = self.__class__._embmodel
 
         search_df = self.copy()
         search_df["sim_score"] = [0.0]*len(search_df)
@@ -187,29 +181,23 @@ class DataFrame(pd.DataFrame):
         happy_embedding = self._embmodel.encode([f'{speaker} is happy'])[0]
         angry_embedding = self._embmodel.encode([f'{speaker} is angry'])[0]
 
-        # Add Emotion nodes
         for emotion in list(dictionary.keys())[:emotion_limit]:
             if emotion != 'speaker':
-                # Calculate the cosine similarity to the word "happy"
                 emotion_embedding = self._embmodel.encode([f'{speaker} is {emotion}'])[0]
                 happy_sim = util.cos_sim([happy_embedding], [emotion_embedding])[0][0]
                 angry_sim = util.cos_sim([angry_embedding], [emotion_embedding])[0][0]
                 similarity = np.clip(happy_sim - 0.5*angry_sim, 0,1)
 
-                # Convert similarity to an integer between 0 and 255
                 color_value = int(255 * (1 - similarity))
 
-                # Convert the color value to hexadecimal
                 color_hex = format(color_value, '02x')
 
-                # Define color based on similarity (green for high, red for low)
                 color = f"#{color_hex}ff00" if similarity >= 0.4 else f"#ff{color_hex}00"
 
                 emotion_node = pydot.Node(emotion, style="filled", fillcolor=color)
                 graph.add_node(emotion_node)
                 graph.add_edge(pydot.Edge(speaker_node, emotion_node))
 
-                # Add Object nodes
                 for object_ in dictionary[emotion][:obj_limit]:
                     object_node = pydot.Node(object_, style="filled", fillcolor="yellow")
                     graph.add_node(object_node)
