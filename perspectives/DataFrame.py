@@ -19,12 +19,32 @@ class DataFrame(pd.DataFrame):
         with warnings.catch_warnings():
           warnings.simplefilter("ignore")
           self.texts = texts
-          self["text"] = self.texts
+          self["text"] = texts
           self.perspectives_loaded = False
           self.speaker_embs = []
           self.emotion_embs = []
           self.object_embs = []
           self.reason_embs = []
+
+    def __getitem__(self, item):
+        data = super().__getitem__(item)
+        with warnings.catch_warnings():
+          warnings.simplefilter("ignore")
+          for key in self.columns:
+              if isinstance(getattr(self, key + "_embs", None), np.ndarray):
+                emb = [getattr(self, key + "_embs", None)[i] for i in data.index.values.tolist()]
+              else:
+                emb = []
+              setattr(data, key + "_embs", emb)
+
+        if isinstance(data, pd.DataFrame):
+            data.__class__ = DataFrame
+            data._model = self._model
+            data._tokenizer = self._tokenizer
+            data._embmodel = self._embmodel
+            data.device = self.device
+            data.perspectives_loaded = self.perspectives_loaded
+        return data
 
     @classmethod
     def load_model(cls):
@@ -71,7 +91,7 @@ class DataFrame(pd.DataFrame):
         if self._model == None:
           self.load_model()
         if not self.perspectives_loaded:
-          perspectives = self.model_perspectives(self.texts, batch_size=batch_size)
+          perspectives = self.model_perspectives(self["text"].tolist(), batch_size=batch_size)
           self["perspectives"] = perspectives
           self["speaker"] = self["perspectives"].apply(lambda x: x["speaker"])
           self["emotion"] = self["perspectives"].apply(lambda x: x["emotion"])
@@ -81,12 +101,14 @@ class DataFrame(pd.DataFrame):
           self.perspectives_loaded = True
 
     def search(self, *args, **kwargs):
-        if self._embmodel is None:
+        while self._embmodel is None:
             self.load_embmodel()
+            model_id = "sentence-transformers/all-mpnet-base-v1"
+            self._embmodel = SentenceTransformer(model_id).to(self.device)
 
         search_df = self.copy()
         search_df["sim_score"] = [0.0]*len(search_df)
-        search_df["text"] = self.texts
+        search_df["text"] = self["text"].tolist()
 
         for key, value in kwargs.items():
             if key == "obj":
@@ -94,11 +116,38 @@ class DataFrame(pd.DataFrame):
             if value is not None:
                 if not isinstance(getattr(self, key + "_embs", None),np.ndarray):
                   if getattr(self, key + "_embs", None) in [None,[]]:
-                      setattr(self, key + "_embs", self._embmodel.encode(self[key]))
+                      setattr(self, key + "_embs", self._embmodel.encode(self[key].tolist()))
 
                 query_emb = self._embmodel.encode(value)
                 cos_scores = list(util.cos_sim(query_emb, getattr(self, key + "_embs"))[0])
                 search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"], cos_scores)]
+
+        if any(search_df["sim_score"]):
+            search_df.sort_values(by="sim_score", ascending=False, inplace=True)
+        
+        search_df.drop(columns=["sim_score"], inplace=True)
+
+        return_df =  DataFrame(texts=search_df["text"].tolist(),
+                               data={col: search_df[col].tolist() for col in search_df.columns})
+
+        return return_df
+    
+    def relevant(self):
+        if self._embmodel is None:
+            self.load_embmodel()
+
+        search_df = self.copy()
+        search_df["sim_score"] = [0.0]*len(search_df)
+        search_df["text"] = self["text"].tolist()
+
+        for key in [ "speaker", "emotion", "object", "reason"]:
+            if not isinstance(getattr(self, key + "_embs", None),np.ndarray):
+              if getattr(self, key + "_embs", None) in [None,[]]:
+                  setattr(self, key + "_embs", self._embmodel.encode(self[key].tolist()))
+
+            query_emb = np.average(getattr(self, key + "_embs", None), axis=0)
+            cos_scores = list(util.cos_sim(query_emb, getattr(self, key + "_embs"))[0])
+            search_df["sim_score"] = [sim+score for sim, score in zip(search_df["sim_score"], cos_scores)]
 
         if any(search_df["sim_score"]):
             search_df.sort_values(by="sim_score", ascending=False, inplace=True)
@@ -130,17 +179,13 @@ class DataFrame(pd.DataFrame):
           print("Speaker not found")
           return
 
-        # Create an empty graph
         graph = pydot.Dot(graph_type='graph')
 
-        # Start with the Speaker node
         speaker_node = pydot.Node(speaker, style="filled", fillcolor="blue")
         graph.add_node(speaker_node)
 
-        # Get the embedding for the word "happy"
         happy_embedding = self._embmodel.encode([f'{speaker} is happy'])[0]
         angry_embedding = self._embmodel.encode([f'{speaker} is angry'])[0]
-
 
         # Add Emotion nodes
         for emotion in list(dictionary.keys())[:emotion_limit]:
